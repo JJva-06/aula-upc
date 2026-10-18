@@ -1,0 +1,16 @@
+{
+  "name": "aula",
+  "version": "0.1.0",
+  "description": "Baja el material, las grabaciones y las entregas pendientes del Aula Virtual UPC (Blackboard Ultra) desde Claude Code",
+  "author": {
+    "name": "Rody Vilchez"
+  },
+  "repository": "https://github.com/R0SEWT/aula-upc",
+  "license": "MIT",
+  "keywords": [
+    "upc",
+    "blackboard",
+    "aula-virtual",
+    "cursos"
+  ]
+}

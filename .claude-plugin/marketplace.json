@@ -1,0 +1,14 @@
+{
+  "name": "aula-upc",
+  "description": "Herramientas para el Aula Virtual UPC en Claude Code",
+  "owner": {
+    "name": "Rody Vilchez"
+  },
+  "plugins": [
+    {
+      "name": "aula",
+      "description": "Baja el material, las grabaciones y las entregas pendientes del Aula Virtual UPC",
+      "source": "./"
+    }
+  ]
+}

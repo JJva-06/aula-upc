@@ -1,0 +1,28 @@
+version: 2
+updates:
+  # Las actions corren con el GITHUB_TOKEN del repo en cada PR: es la única
+  # superficie de supply chain que tiene esto. Van pineadas por SHA en el
+  # workflow, así que dependabot mueve el SHA y el comentario de versión, y un
+  # re-tag de `v7` ya no nos alcanza.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # Solo las dependencias de runtime. Seguirle el piso a ruff o pytest no compra
+  # nada en un repo que no se publica ni se despliega, y sube el riesgo de que CI
+  # falle por reglas de lint nuevas en código que nadie tocó.
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "production"
+    groups:
+      python:
+        patterns:
+          - "*"
