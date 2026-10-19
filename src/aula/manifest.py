@@ -87,7 +87,8 @@ def _merge_attachments(destino: dict, origen: dict) -> None:
 
 def load(path) -> dict:
     """Lee un manifiesto y lo migra a v2 si hace falta."""
-    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    # `utf-8-sig`: el Bloc de notas de Windows puede guardar el JSON con BOM.
+    data = json.loads(Path(path).read_text(encoding="utf-8-sig"))
     if data.get("schema_version", 1) < SCHEMA_VERSION:
         return migrate(data)
     return data
@@ -98,9 +99,12 @@ def save(path, data: dict) -> None:
 
     Python preserva el orden de inserción de los dicts, así que respetar el orden
     existente sale gratis mientras no se reconstruyan los dicts.
+
+    Siempre con `\\n`: si Windows lo escribiera con `\\r\\n`, un manifiesto hecho en
+    Linux saldría entero en el diff.
     """
     texto = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
-    Path(path).write_text(texto, encoding="utf-8")
+    Path(path).write_text(texto, encoding="utf-8", newline="\n")
 
 
 def resumen(data: dict) -> dict[str, int]:

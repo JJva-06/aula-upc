@@ -5,7 +5,7 @@ from aula.manifest import load, save
 
 def test_load_migra_un_manifiesto_v1(tmp_path):
     p = tmp_path / "manifest.json"
-    p.write_text(json.dumps({"schema_version": 1, "documents": []}))
+    p.write_text(json.dumps({"schema_version": 1, "documents": []}), encoding="utf-8")
 
     data = load(p)
 
@@ -18,7 +18,7 @@ def test_save_conserva_el_orden_de_claves_y_los_acentos(tmp_path):
 
     save(p, data)
 
-    texto = p.read_text()
+    texto = p.read_text(encoding="utf-8")
     assert texto.index('"schema_version"') < texto.index('"course"') < texto.index('"documents"')
     assert "Programación" in texto, "no debe escapar los acentos a \\uXXXX"
     assert texto.endswith("\n")
@@ -31,8 +31,15 @@ def test_ciclo_load_save_de_un_v2_no_cambia_el_archivo(tmp_path):
         indent=2,
         ensure_ascii=False,
     ) + "\n"
-    p.write_text(original)
+    p.write_bytes(original.encode("utf-8"))
 
     save(p, load(p))
 
-    assert p.read_text() == original
+    assert p.read_bytes() == original.encode("utf-8"), "ni en Windows debe pasar a \\r\\n"
+
+
+def test_load_tolera_el_bom_del_bloc_de_notas(tmp_path):
+    p = tmp_path / "manifest.json"
+    p.write_bytes(b"\xef\xbb\xbf" + json.dumps({"schema_version": 2, "documents": []}).encode("utf-8"))
+
+    assert load(p)["schema_version"] == 2

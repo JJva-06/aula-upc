@@ -13,7 +13,7 @@ No guarda contraseñas.
 - Google Chrome instalado (no Chromium): `aula` abre el Chrome del sistema con un perfil propio.
 - Opcional: [rclone](https://rclone.org/install/) ≥ 1.75 para `aula respaldo`.
 
-Probado en Linux. En macOS debería funcionar igual; en Windows, mejor usarlo dentro de WSL.
+Probado en Linux y en Windows (nativo, sin WSL). En macOS debería funcionar igual.
 
 ## Instalación
 
@@ -23,7 +23,26 @@ aula login
 ```
 
 `aula login` abre Chrome: entra con tu cuenta UPC y completa el MFA. La ventana detecta sola cuando
-terminaste. El perfil queda en `~/.local/share/aula/profile`.
+terminaste. El perfil queda en `~/.local/share/aula/profile` (en Windows,
+`%LOCALAPPDATA%\aula\profile`); para usar otro, define `AULA_PROFILE_DIR`.
+
+### En Windows
+
+En PowerShell:
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"   # uv
+uv tool install git+https://github.com/R0SEWT/aula-upc
+winget install Rclone.Rclone   # opcional, para `aula respaldo`
+```
+
+Abre una terminal nueva para que `aula` y `rclone` queden en el `PATH` (si `uv` avisa que
+`~\.local\bin` no está en el `PATH`, corre `uv tool update-shell`).
+
+- Los nombres de archivo del Aula con caracteres que Windows no admite (`: ? * " < > |`) se
+  guardan con `_` en su lugar.
+- Si una ruta pasa de 260 caracteres, ese archivo falla y queda pendiente. Usa una carpeta de
+  curso corta (p. ej. `C:\cursos\1ACC0202`) o activa las rutas largas de Windows.
 
 ### Como plugin de Claude Code
 

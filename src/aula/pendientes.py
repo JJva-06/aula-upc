@@ -8,10 +8,11 @@ columna que nadie ha entregado. Lo que manda son los intentos, y la nota si la h
 from __future__ import annotations
 
 import re
-from datetime import datetime
-from zoneinfo import ZoneInfo
+from datetime import datetime, timedelta, timezone
 
-LIMA = ZoneInfo("America/Lima")
+# Lima no tiene horario de verano: UTC-5 fijo todo el año. Con ZoneInfo, Windows
+# necesitaría el paquete tzdata, porque no trae la base de zonas horarias de IANA.
+LIMA = timezone(timedelta(hours=-5))
 # Sin depender del locale de la máquina, que aquí está en inglés.
 DIAS = ("lun", "mar", "mié", "jue", "vie", "sáb", "dom")
 _CURSO = re.compile(r"^[^:]*:\s*(.*?)(?:\s+-\s+(?:Presencial|Virtual|Semipresencial|Blended))?\s*$")

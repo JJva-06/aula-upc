@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -18,6 +19,13 @@ from . import (
     pendientes,
     respaldo,
 )
+
+# En Windows, con la salida redirigida (un pipe, un archivo, Claude Code), Python
+# escribe con la página de códigos ANSI y los ✓/✗/→ revientan con UnicodeEncodeError.
+if sys.platform == "win32":
+    for _flujo in (sys.stdout, sys.stderr):
+        if hasattr(_flujo, "reconfigure"):
+            _flujo.reconfigure(encoding="utf-8", errors="replace")
 
 app = typer.Typer(help="Sincroniza material del Aula Virtual UPC con tu repo de curso.", no_args_is_help=True)
 
@@ -267,8 +275,16 @@ def _bajar_todo(cliente, data: dict, raiz: Path) -> tuple[int, int, int]:
                 continue
 
             archivo = raiz / destino
-            archivo.parent.mkdir(parents=True, exist_ok=True)
-            archivo.write_bytes(contenido)
+            try:
+                archivo.parent.mkdir(parents=True, exist_ok=True)
+                archivo.write_bytes(contenido)
+            except OSError as e:
+                # Típico en Windows: la ruta pasa de 260 caracteres. Queda pendiente,
+                # no `unavailable`: el Aula sí lo entrega y se reintenta en la próxima.
+                att["reason"] = f"{type(e).__name__}: {e}"[:200]
+                typer.secho(f"  ✗ {att['name']}: no se pudo escribir en disco ({att['reason']})", fg="red")
+                fallidos += 1
+                continue
 
             att.update({
                 "status": "downloaded",

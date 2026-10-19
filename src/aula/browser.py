@@ -63,11 +63,14 @@ def asegurar_sesion(obtener_status, navegar_sso, esperar, intentos: int = 8) -> 
     return False
 
 
-def profile_dir(env: dict | None = None) -> Path:
+def profile_dir(env: dict | None = None, windows: bool | None = None) -> Path:
     """Dónde vive el perfil de Chrome dedicado. Fuera de cualquier repo."""
     env = os.environ if env is None else env
+    windows = os.name == "nt" if windows is None else windows
     if override := env.get("AULA_PROFILE_DIR"):
         return Path(override)
+    if windows and (local := env.get("LOCALAPPDATA")):
+        return Path(local) / "aula" / "profile"
     return Path.home() / ".local/share/aula/profile"
 
 
@@ -87,7 +90,10 @@ def _contexto(headless: bool):
 
     destino = profile_dir()
     destino.mkdir(parents=True, exist_ok=True)
-    destino.chmod(0o700)
+    # En Windows los permisos POSIX no existen: la carpeta ya hereda la ACL del
+    # perfil del usuario (%LOCALAPPDATA%), que solo él puede leer.
+    if os.name != "nt":
+        destino.chmod(0o700)
 
     pw = sync_playwright().start()
     ctx = pw.chromium.launch_persistent_context(

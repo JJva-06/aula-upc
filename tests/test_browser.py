@@ -6,13 +6,19 @@ from aula.browser import evaluar_sesion, profile_dir
 
 
 def test_profile_dir_por_defecto_vive_fuera_del_repo():
-    d = profile_dir(env={})
+    d = profile_dir(env={}, windows=False)
 
     assert d == Path.home() / ".local/share/aula/profile"
 
 
+def test_profile_dir_en_windows_vive_en_localappdata():
+    d = profile_dir(env={"LOCALAPPDATA": "C:/Users/ana/AppData/Local"}, windows=True)
+
+    assert d == Path("C:/Users/ana/AppData/Local") / "aula" / "profile"
+
+
 def test_profile_dir_respeta_la_variable_de_entorno():
-    d = profile_dir(env={"AULA_PROFILE_DIR": "/tmp/otro"})
+    d = profile_dir(env={"AULA_PROFILE_DIR": "/tmp/otro", "LOCALAPPDATA": "C:/x"}, windows=True)
 
     assert d == Path("/tmp/otro")
 

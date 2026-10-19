@@ -9,18 +9,43 @@ from __future__ import annotations
 import copy
 import hashlib
 import os
+import posixpath
 import re
 import unicodedata
 from pathlib import Path
 
 RAIZ_MATERIAL = "materials"
+EN_WINDOWS = os.name == "nt"
+
+# Lo que Windows no admite en un nombre de archivo. Se limpia en todos los sistemas:
+# el manifiesto se commitea, y una ruta registrada en Linux tiene que servir en Windows.
+_PROHIBIDOS = re.compile(r'[<>:"|?*\x00-\x1f]')
+_RESERVADOS = {"CON", "PRN", "AUX", "NUL", *(f"COM{i}" for i in range(1, 10)), *(f"LPT{i}" for i in range(1, 10))}
+
+
+def nombre_portable(nombre: str) -> str:
+    """El nombre con lo que Windows rechaza cambiado por `_`.
+
+    Fuera los caracteres prohibidos y los puntos y espacios del final (Windows los
+    descarta en silencio y el archivo acabaría con otro nombre); a un nombre
+    reservado (`CON`, `NUL.pdf`…) se le antepone `_`.
+    """
+    limpio = _PROHIBIDOS.sub("_", nombre).rstrip(". ")
+    if limpio.split(".", 1)[0].upper() in _RESERVADOS:
+        limpio = f"_{limpio}"
+    return limpio or "_"
+
+
+def ruta_portable(ruta: str) -> bool:
+    """¿Cada tramo de la ruta (con `/`) es un nombre válido también en Windows?"""
+    return all(tramo == nombre_portable(tramo) for tramo in ruta.split("/"))
 
 
 def destino_local(week: int | None, nombre: str) -> str:
     """Ruta relativa donde vive un adjunto dentro del repo del curso."""
     carpeta = f"week-{week:02d}" if isinstance(week, int) else "extra"
     # El nombre viene del Aula Virtual: nunca se deja que escape de su carpeta.
-    seguro = os.path.basename(nombre.replace("\\", "/"))
+    seguro = nombre_portable(posixpath.basename(nombre.replace("\\", "/")))
     return f"{RAIZ_MATERIAL}/{carpeta}/{seguro}"
 
 
@@ -58,6 +83,9 @@ def asignar_destinos(data: dict) -> dict:
     corridas ni se huerfanen los archivos que el repo del curso ya tiene. Solo se
     reasigna el segundo de dos adjuntos que reclamen la misma ruta: ahí es seguro
     que uno de los dos archivos no está en disco.
+
+    En Windows tampoco se respeta una ruta que allí no puede existir (un `:` que
+    dejó pasar un manifiesto hecho en Linux): ese archivo seguro que no está en disco.
     """
     out = copy.deepcopy(data)
     ocupadas: set[str] = set()
@@ -65,6 +93,8 @@ def asignar_destinos(data: dict) -> dict:
     for doc in out.get("documents", []):
         for att in doc.get("attachments", []):
             registrada = att.get("local_path")
+            if registrada and EN_WINDOWS and not ruta_portable(registrada):
+                registrada = None
             if registrada and registrada not in ocupadas:
                 ocupadas.add(registrada)
                 continue

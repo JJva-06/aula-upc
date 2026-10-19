@@ -38,8 +38,12 @@ LIBERABLES = {"active_speaker", "shared_screen"}
 HOST_HF = "s3.hf.co"
 API_BUCKETS = "https://huggingface.co/api/buckets"
 
-INSTALAR = ("Instálalo con el instalador oficial: `sudo -v ; curl https://rclone.org/install.sh | sudo bash`. "
-            "La versión de apt (1.60) no alcanza para comprobar buckets de HF.")
+if os.name == "nt":
+    INSTALAR = ("Instálalo con `winget install Rclone.Rclone` (o desde https://rclone.org/downloads/) "
+                "y abre una terminal nueva para que quede en el PATH.")
+else:
+    INSTALAR = ("Instálalo con el instalador oficial: `sudo -v ; curl https://rclone.org/install.sh | sudo bash`. "
+                "La versión de apt (1.60) no alcanza para comprobar buckets de HF.")
 
 
 class SinDestino(ValueError):
@@ -321,7 +325,9 @@ def es_publico(status: int, cuerpo: str) -> bool:
 
 
 def correr(cmd: list[str], capturar: bool = True) -> tuple[int, str]:
-    r = subprocess.run(cmd, capture_output=capturar, text=True, check=False)
+    # rclone escribe UTF-8; sin decirlo, en Windows se leería con la página de códigos
+    # ANSI y un nombre con tildes rompería el JSON de `rclone about`.
+    r = subprocess.run(cmd, capture_output=capturar, text=True, encoding="utf-8", errors="replace", check=False)
     return r.returncode, r.stdout or ""
 
 

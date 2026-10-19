@@ -42,5 +42,6 @@ pide al usuario que lo instale (ver el README del repo).
   usuario.
 - El material es del profesor: no subirlo a un remoto público.
 - `aula respaldo` usa rclone: si sale con código 6 por falta de rclone o del remoto, se le pide al
-  usuario que lo instale (instalador oficial, no apt) y corra `rclone config`. Si dice que el
+  usuario que lo instale (en Linux, instalador oficial, no apt; en Windows, `winget install
+  Rclone.Rclone`) y corra `rclone config`. Si dice que el
   bucket es público, **no** se fuerza: se hace privado primero.
