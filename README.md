@@ -18,7 +18,7 @@ Probado en Linux y en Windows (nativo, sin WSL). En macOS debería funcionar igu
 ## Instalación
 
 ```bash
-uv tool install git+https://github.com/R0SEWT/aula-upc
+uv tool install git+https://github.com/JJva-06/aula-upc
 aula login
 ```
 
@@ -32,7 +32,7 @@ En PowerShell:
 
 ```powershell
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"   # uv
-uv tool install git+https://github.com/R0SEWT/aula-upc
+uv tool install git+https://github.com/JJva-06/aula-upc
 winget install Rclone.Rclone   # opcional, para `aula respaldo`
 ```
 
@@ -49,7 +49,7 @@ Abre una terminal nueva para que `aula` y `rclone` queden en el `PATH` (si `uv` 
 Para que Claude sepa usar `aula` cuando le pidas «baja el material» o «qué entregas tengo»:
 
 ```
-/plugin marketplace add R0SEWT/aula-upc
+/plugin marketplace add JJva-06/aula-upc
 /plugin install aula@aula-upc
 ```
 

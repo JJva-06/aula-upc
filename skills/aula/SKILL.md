@@ -7,7 +7,7 @@ description: Úsala cuando haya que traer o revisar material del Aula Virtual UP
 
 `aula` opera sobre la carpeta del curso **donde se lo invoca** (la que tiene `manifest.json`),
 salvo `aula pendientes`, que mira todos los cursos y corre desde cualquier directorio. Se instala
-global con `uv tool install git+https://github.com/R0SEWT/aula-upc`. Si `aula` no existe, se le
+global con `uv tool install git+https://github.com/JJva-06/aula-upc`. Si `aula` no existe, se le
 pide al usuario que lo instale (ver el README del repo).
 
 | Quiero | Comando |
